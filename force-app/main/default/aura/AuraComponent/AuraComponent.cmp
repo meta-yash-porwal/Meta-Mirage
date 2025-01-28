@@ -1,0 +1,7 @@
+<aura:component implements="flexipage:availableForAllPageTypes" access="global">
+    <aura:attribute name="valueFromLWC" type="String"/>
+    <aura:attribute name="valueFromAura" type="String"/>
+    <c:childComponent valueFromAura="{!v.valueFromAura}" onsubmitevent="{!c.handleSubmit}"></c:childComponent>
+    <p>AURA</p>
+    <p>{!v.valueFromLWC}</p>
+</aura:component>
