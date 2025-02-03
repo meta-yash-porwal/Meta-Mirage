@@ -1,10 +1,18 @@
 public with sharing class Mirage_POC {
     
+    /**
+     *  future method to call when external callout need to make as per httpCreationMethod method.
+     *  @return void
+     */
     @future(callout=true)
     public static void callHTTPRequestMethod() {
         httpCreationMethod();
     }
 
+    /**
+     *  method to make GET http request callout to metacube.com.
+     *  @return HttpResponse - return httpsReponse to check statusCode and response.
+     */
     public static HttpResponse httpCreationMethod() {
         HttpRequest httpReq = new HttpRequest();
         httpReq.setEndpoint('https://www.metacube.com');
@@ -35,6 +43,10 @@ public with sharing class Mirage_POC {
         }
     }
 
+    /**
+     *  method to create Metadata service.
+     *  @return MetadataService.MetadataPort - return MetadataPort to access Metadata service.
+     */
     private static MetadataService.MetadataPort createMetadataService() {
         MetadataService.MetadataPort service = new MetadataService.MetadataPort();
         service.SessionHeader = new MetadataService.SessionHeader_element();
@@ -42,6 +54,11 @@ public with sharing class Mirage_POC {
         return service;
     }
 
+    /**
+     * method to create picklist value using metadata service class 
+     * By reading custom field and adding picklist value without removing other picklist value.
+     * @return void
+     */
     public static void createPicklistValue() {
         MetadataService.MetadataPort service = createMetadataService();     
         Schema.DescribeFieldResult dfr = Account.SLA__c.getDescribe();        
@@ -88,6 +105,7 @@ public with sharing class Mirage_POC {
                 for (MetadataService.Error error : saveResult.errors) {
                     System.debug(error.message);
                     System.debug(error.fields);
+
                 }   
             }
         }
@@ -103,16 +121,25 @@ public with sharing class Mirage_POC {
         return accName;
     }
 
+    /**
+     * method to strip inaccessbile fields from SOQL and DML statements
+     */
     public static void stripInaccess() {
-        List<Contact> conList = [SELECT Id, Name FROM Contact LIMIT 10];
-        SObjectAccessDecision decision1 = Security.stripInaccessible(AccessType.READABLE, conList);
-        System.debug(decision1.getRecords());
-        System.debug(decision1.getRemovedFields());
-        
-        Contact con = new Contact(FirstName = 'Test', LastName = 'Test');
-        SObjectAccessDecision decision2 = Security.stripInaccessible(AccessType.CREATABLE, conList);
-        System.debug(decision2.getRecords());
-        System.debug(decision2.getRemovedFields());
-        insert decision2.getRecords();
+        try {
+            List<Contact> conList = [SELECT Id, Name FROM Contact LIMIT 10];
+            SObjectAccessDecision decision1 = Security.stripInaccessible(AccessType.READABLE, conList);
+            System.debug(decision1.getRecords());
+            System.debug(decision1.getRemovedFields());
+            
+            Contact con = new Contact(FirstName = 'Test', LastName = 'Test');
+            SObjectAccessDecision decision2 = Security.stripInaccessible(AccessType.CREATABLE, conList);
+            System.debug(decision2.getRecords());
+            System.debug(decision2.getRemovedFields());
+            insert decision2.getRecords();
+        } catch (Exception e) {
+            throw new CustomException(e.getMessage());
+            throw new Exception(e.getMessage());
+            System.debug(e.getMessage());
+        }
     }
 }
