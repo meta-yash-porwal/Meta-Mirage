@@ -137,9 +137,8 @@ public with sharing class Mirage_POC {
             System.debug(decision2.getRemovedFields());
             insert decision2.getRecords();
         } catch (Exception e) {
-            throw new CustomException(e.getMessage());
-            throw new Exception(e.getMessage());
             System.debug(e.getMessage());
+            throw new CustomException(e.getMessage());
         }
     }
 }
